@@ -22,6 +22,7 @@ let winner = "";
 let textUserCards = "";
 let textMachineCards = "";
 let buyCard;
+let check = true;
  
 function launchGame () {
    for (let index = 0; index < 2; index++) {
@@ -39,6 +40,8 @@ function checkingAcart () {
 }
 
 function calculateScores () {
+   scoreUser = 0;
+   scoreMachine = 0;
    for (let i = 0; i < userCards.length; i++) {
       scoreUser += userCards[i].valor;
    }
@@ -49,10 +52,10 @@ function calculateScores () {
 }
 
 function checkingWinner () {
-   if (scoreUser === 21 || scoreUser < 21 && scoreUser > scoreMachine) {
+   if (scoreMachine > 21 || (scoreUser > scoreMachine && scoreUser <= 21)) {
       winner = "O usuário ganhou!";
    }
-   else if (scoreMachine === 21 || scoreMachine < 21 && scoreMachine > scoreUser) {
+   else if (scoreUser > 21 || (scoreMachine > scoreUser && scoreMachine <= 21)) {
       winner = "O computador ganhou!";
    }
    else if (scoreUser === scoreMachine) {
@@ -63,6 +66,7 @@ function checkingWinner () {
 function printResults () {
    textUserCards = userCards.map(card => card.texto).join(" ");
    textMachineCards = machineCards.map(card => card.texto).join(" ");
+  
    alert(
       `Usario - Cartas: ${textUserCards} - Pontuação: ${scoreUser}
 Computador - Cartas: ${textMachineCards} - Pontuação: ${scoreMachine} 
@@ -71,37 +75,37 @@ ${winner}`
 }
 
 function showAndBuyCard () {
-   buyCard = confirm(`Suas cartas são ${userCards[0].texto} ${userCards[1].texto}. A carta revelada do computador é ${machineCards[0].texto}.
+   buyCard = confirm(`Suas cartas são ${textUserCards}. A carta revelada do computador é ${machineCards[0].texto}.
 Deseja comprar mais uma carta?`)
 
    if (buyCard) {
       userCards.push(comprarCarta());
       textUserCards = userCards.map(card => card.texto).join(" ");
       calculateScores()
-   } else {}
-      buyCard = confirm(`Suas cartas são ${textUserCards}. A carta revelada do computador é ${machineCards[0].texto}.
-Deseja comprar mais uma carta?`)
-   
-   if (buyCard === false && scoreUser <= 21) {
-      do {
-         machineCards.push(comprarCarta());
-         checkingWinner();
-      }
-      while(scoreMachine <= scoreUser)
    }
    else {
-      checkingWinner();
-      printResults();
-   }
+      while(scoreMachine < scoreUser) {
+         machineCards.push(comprarCarta());
+         textMachineCards = machineCards.map(card => card.texto).join(" ");
+         calculateScores();
+      }
+      check = false;
+   }       
 } 
 
 const startRound = confirm("Bem-vindo(a) ao jogo de blackjack!\nQuer iniciar uma nova rodada?");
 
-if (startRound === true) {
+if (startRound) {
    launchGame();
    checkingAcart();
    calculateScores();
-   showAndBuyCard();
+   textUserCards = userCards.map(card => card.texto).join(" ");
+   textMachineCards = machineCards.map(card => card.texto).join(" ");
+   while (scoreUser < 21 && check === true) {
+      showAndBuyCard()
+  }
+  checkingWinner();
+  printResults();
 }
 else {
    alert("O jogo acabou.")
